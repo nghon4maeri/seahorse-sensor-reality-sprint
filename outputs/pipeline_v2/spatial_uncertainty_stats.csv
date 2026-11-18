@@ -1,0 +1,5 @@
+sample_id,frame_idx,pred_health,hybrid_health,top1_issue,top1_prob,pred_pix_mean,pred_pix_std,pred_pix_p95,pred_pix_max,inside_gt_bbox_mean,outside_gt_bbox_mean,bbox_vs_bg_ratio
+S01_clean,54,0.148613,0.872292,compression,1.0,0.179634,0.219707,0.801087,0.986033,0.176454,0.17967,0.9821
+S01_motion_blur_s1,54,0.275877,0.079228,compression,1.0,0.252464,0.126183,0.575872,0.738342,0.252537,0.252463,1.0003
+S01_motion_blur_s2,54,0.4073,0.051581,compression,1.0,0.499521,0.045138,0.579133,0.669307,0.513683,0.499361,1.0287
+S01_motion_blur_s5,54,0.0766,0.013274,compression,0.9999,0.4909,0.038271,0.555374,0.628436,0.503259,0.490759,1.0255

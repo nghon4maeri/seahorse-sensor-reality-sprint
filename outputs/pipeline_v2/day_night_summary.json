@@ -1,0 +1,31 @@
+{
+  "rows_evaluated": 24,
+  "monotonicity_checks": {
+    "S01_motion_blur": {
+      "pred_health_monotonic": false,
+      "fixed_health_monotonic": true,
+      "adaptive_health_monotonic": true
+    },
+    "S01_underexposure": {
+      "pred_health_monotonic": false,
+      "fixed_health_monotonic": true,
+      "adaptive_health_monotonic": true
+    },
+    "S06_motion_blur": {
+      "pred_health_monotonic": false,
+      "fixed_health_monotonic": false,
+      "adaptive_health_monotonic": true
+    },
+    "S06_underexposure": {
+      "pred_health_monotonic": false,
+      "fixed_health_monotonic": true,
+      "adaptive_health_monotonic": true
+    }
+  },
+  "S06_clean_fixed_state": "CRITICAL",
+  "S06_clean_adaptive_state": "HEALTHY",
+  "S06_clean_adaptive_health": 0.83322,
+  "S01_underexposure_s5_adaptive_state": "CRITICAL",
+  "csv_path": "outputs\\pipeline_v2\\day_night_adaptive_comparison.csv",
+  "plot_path": "outputs\\pipeline_v2\\day_night_adaptive_plot.png"
+}

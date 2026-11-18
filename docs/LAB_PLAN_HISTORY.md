@@ -18,7 +18,7 @@ Nhóm Seahorse gồm **4 người**, đội trưởng **Lưu Quang Khải — 2A
 
 Repository chung: <https://github.com/luuquangkhai9/K4-Track4-Day04-Seahorse-Sensor-Reality-Sprint>.
 
-**Cập nhật giai đoạn 1:** Đã chuẩn bị [thiết kế benchmark](BENCHMARK_DESIGN.md), [cấu hình đối chiếu](../configs/benchmark.json) và [TEAMMATES](../TEAMMATES.md); đã đồng bộ phân công. Lê Hưng phụ trách tài liệu, Đặng ĐỈnh Đoàn phụ trách code/benchmark, Nguyễn Hồ Nam — 2A202602788 phụ trách kết quả/pitch. Chi tiết kiểm kê dữ liệu/môi trường nằm trong thiết kế; chưa chạy inference mới.
+**Cập nhật giai đoạn 1:** Đã chuẩn bị [thiết kế benchmark](BENCHMARK_DESIGN.md), [cấu hình đối chiếu](../configs/benchmark.json) và phân công TEAMMATES; đã đồng bộ phân công. Lê Hưng phụ trách tài liệu, Đặng ĐỈnh Đoàn phụ trách code/benchmark, Nguyễn Hồ Nam — 2A202602788 phụ trách kết quả/pitch. Chi tiết kiểm kê dữ liệu/môi trường nằm trong thiết kế; chưa chạy inference mới.
 
 **Cập nhật giai đoạn 2:** Đã hoàn thiện [paper–code mapping](../reports/PAPER_CODE_MAPPING.md), xác minh source/checkpoint và chạy mới S01 clean trên CPU. Mean8 = 0,221979, sai lệch nguồn = 0,000074; forward 8 frame khoảng 3,62 giây. Đủ đường chạy tối thiểu, chưa cần Colab/Kaggle. Xem [STAGE2_REPORT.md](STAGE2_REPORT.md). Giai đoạn 3 còn tải 23 clip và chạy/kiểm tra benchmark đầy đủ.
 

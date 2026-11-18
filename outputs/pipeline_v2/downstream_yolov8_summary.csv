@@ -1,0 +1,5 @@
+sample_id,frames_evaluated,mean_detection_count,total_detections_8f,clean_total_detections_8f,object_drop_pct_8f,mean_confidence_8f,confidence_drop_pct_8f,mean_map50_proxy_8f,mean_recall50_8f,f54_detection_count,f54_mean_confidence,f54_map50_proxy,f54_B,f54_pred_health,mean8_pred_health,f54_hybrid_health,mean8_hybrid_health,mean8_camera_weight,early_warning_triggered
+S01_clean,8,6.5,52,52,0.0,0.5272,0.0,1.0,1.0,8,0.4251,1.0,3544.1383,0.148608,0.221664,0.872291,0.781099,0.945,True
+S01_motion_blur_s1,8,3.75,30,52,42.31,0.4667,11.46,0.4458,0.454,3,0.4629,0.375,292.6948,0.275981,0.318153,0.079222,0.059697,0.018,True
+S01_motion_blur_s2,8,3.375,27,52,48.08,0.3032,42.48,0.3624,0.3826,4,0.3248,0.3438,199.4923,0.407131,0.356668,0.051597,0.051521,0.0142,True
+S01_motion_blur_s5,8,0.75,6,52,88.46,0.163,69.07,0.0864,0.0942,2,0.3047,0.0625,14.2644,0.076615,0.05995,0.013276,0.01162,0.0015,True

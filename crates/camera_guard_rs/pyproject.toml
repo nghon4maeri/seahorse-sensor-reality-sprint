@@ -1,0 +1,17 @@
+[build-system]
+requires = ["maturin>=1.5,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "camera_guard_rs"
+version = "0.1.0"
+description = "High-performance Rust ADAS camera health & safety guard with PyO3 zero-copy NumPy bindings"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+
+[tool.maturin]
+features = ["python"]
+module-name = "camera_guard_rs"
