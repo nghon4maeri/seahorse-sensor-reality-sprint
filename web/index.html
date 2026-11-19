@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seahorse ADAS Guard · Camera Degradation Health Telemetry</title>
+  <link rel="stylesheet" href="/web/css/tokens.css" />
+  <link rel="stylesheet" href="/web/css/styles.css" />
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Bỏ qua điều hướng</a>
+
+  <!-- Top Navigation -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">SEAHORSE · ADAS CAMERA GUARD</h1>
+          <p class="brand-subtitle">LAB T1 — Camera Degradation Health Score &amp; Sensor Fusion Telemetry</p>
+        </div>
+      </div>
+
+      <nav class="nav-links" aria-label="Điều hướng phần chính">
+        <a class="nav-link" href="#inspector">Inspector</a>
+        <a class="nav-link" href="#downstream">YOLOv8 &amp; Timeline</a>
+        <a class="nav-link" href="#whatif">Day/Night &amp; What-If</a>
+        <a class="nav-link" href="#spatial">Spatial pred_pix</a>
+      </nav>
+
+      <div class="provenance-pill" title="Dữ liệu benchmark offline đã xác minh">
+        <span class="provenance-dot" aria-hidden="true"></span>
+        <span id="provenance-text">Đang tải manifest...</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="container">
+    <!-- KPI Telemetry Strip -->
+    <section aria-label="Chỉ số tổng quan" class="kpi-grid">
+      <article class="kpi-card is-alert">
+        <div class="kpi-label">
+          <span>Failure Case · S01 s2</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="1.75" aria-hidden="true">
+            <path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/>
+          </svg>
+        </div>
+        <div class="kpi-value" id="kpi-s2-bdrop">-94.37%</div>
+        <div class="kpi-sub" id="kpi-s2-detail">Đang tải đối chứng B vs Neural vs Hybrid...</div>
+      </article>
+
+      <article class="kpi-card">
+        <div class="kpi-label">
+          <span>Downstream YOLOv8n @ s2</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="1.75" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M7 15 10.5 11.5 13 14 17 9" />
+          </svg>
+        </div>
+        <div class="kpi-value" id="kpi-yolo-drop">-48.1%</div>
+        <div class="kpi-sub" id="kpi-yolo-detail">Đang tải mAP@0.50 proxy 8 frame...</div>
+      </article>
+
+      <article class="kpi-card is-healthy">
+        <div class="kpi-label">
+          <span>Day/Night Monotonicity</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="1.75" aria-hidden="true">
+            <path d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+          </svg>
+        </div>
+        <div class="kpi-value" id="kpi-daynight-val">4 / 4 PASS</div>
+        <div class="kpi-sub" id="kpi-daynight-detail">S06 Night Clean: Fixed CRITICAL -&gt; Adaptive HEALTHY</div>
+      </article>
+
+      <article class="kpi-card">
+        <div class="kpi-label">
+          <span>Rust ECU Latency (camera_guard_rs)</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="1.75" aria-hidden="true">
+            <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z" />
+          </svg>
+        </div>
+        <div class="kpi-value">0.257 ms <span style="font-size:13px;color:var(--color-muted-foreground)">720p</span></div>
+        <div class="kpi-sub">1080p: <span class="mono">0.669 ms</span> · PyO3: <span class="mono">0.758 ms</span> (2.0% của budget 33.3 ms @ 30 FPS)</div>
+        <div class="budget-track" aria-label="Sử dụng 2 phần trăm ngân sách thời gian thực 33.3ms">
+          <div class="budget-fill" style="width: 4%"></div>
+        </div>
+      </article>
+    </section>
+
+    <!-- Module 1: Failure-Case Inspector & Before/After Comparator -->
+    <section id="inspector" class="card" aria-labelledby="inspector-heading">
+      <div class="section-head">
+        <div>
+          <h2 id="inspector-heading" class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+              <rect x="2" y="4" width="20" height="16" rx="2" />
+              <line x1="12" y1="4" x2="12" y2="20" />
+            </svg>
+            1. Interactive Failure-Case Inspector &amp; ADAS Fusion HUD
+          </h2>
+          <p class="section-desc">
+            So sánh trực quan cùng khung hình <strong>S01 frame 54</strong> giữa baseline Clean và các mức Motion Blur DRIVE-C.
+            Thanh trượt hỗ trợ kéo chuột/chạm, phím mũi tên và nút định vị nhanh (WCAG 2.2 AA).
+          </p>
+        </div>
+
+        <div class="btn-group" role="group" aria-label="Chọn điều kiện suy thoái">
+          <button type="button" class="btn" data-sample-id="S01_clean" aria-pressed="false">Clean (0px)</button>
+          <button type="button" class="btn" data-sample-id="S01_motion_blur_s1" aria-pressed="false">Blur s1 (11px)</button>
+          <button type="button" class="btn btn-failure" data-sample-id="S01_motion_blur_s2" aria-pressed="true">Blur s2 (13px · Failure)</button>
+          <button type="button" class="btn" data-sample-id="S01_motion_blur_s5" aria-pressed="false">Blur s5 (33px)</button>
+        </div>
+      </div>
+
+      <div class="inspector-grid">
+        <!-- Left: Visual Comparator -->
+        <div>
+          <div class="viewport-toolbar">
+            <div class="btn-group" role="group" aria-label="Chế độ hiển thị ảnh">
+              <button type="button" class="btn" data-view-mode="split" aria-pressed="true">Split RGB (Clean vs Blur)</button>
+              <button type="button" class="btn" data-view-mode="yolo" aria-pressed="false">YOLOv8 Detections</button>
+              <button type="button" class="btn" data-view-mode="spatial" aria-pressed="false">Spatial pred_pix</button>
+            </div>
+            <span id="comparator-readout" class="mono" style="font-size:12px;color:var(--color-muted-foreground)">Clean 50% | Degraded 50%</span>
+          </div>
+
+          <div id="view-split-wrap">
+            <div id="comparator-stage" class="comparator-stage">
+              <img id="comparator-right-img" class="comparator-img" src="/outputs/stage3_small/S01_motion_blur_s2_f54.png" alt="Blur s2 camera frame 54" />
+              <div id="comparator-overlay" class="comparator-overlay">
+                <img class="comparator-img" src="/outputs/stage3_small/S01_clean_f54.png" alt="Clean baseline camera frame 54" />
+              </div>
+              <span class="comparator-tag left">S01 Clean (Baseline)</span>
+              <span id="comparator-right-tag" class="comparator-tag right">Blur s2 (13 px · Failure)</span>
+              <div id="comparator-divider" class="comparator-divider" aria-hidden="true"></div>
+              <div
+                id="comparator-handle"
+                class="comparator-handle"
+                role="slider"
+                tabindex="0"
+                aria-label="Thanh trượt so sánh ảnh Clean và Degraded"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="50"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="m9 18-6-6 6-6M15 6l6 6-6 6" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="comparator-controls">
+              <div class="btn-group" role="group" aria-label="Đặt nhanh vị trí thanh trượt">
+                <button type="button" class="btn" data-split-pct="0" aria-pressed="false">100% Degraded</button>
+                <button type="button" class="btn" data-split-pct="50" aria-pressed="true">50 / 50 Split</button>
+                <button type="button" class="btn" data-split-pct="100" aria-pressed="false">100% Clean</button>
+              </div>
+              <span style="font-size:12px;color:var(--color-muted-foreground)">Mẹo: Nhấn Tab vào nút kéo và dùng phím mũi tên Trái/Phải</span>
+            </div>
+          </div>
+
+          <div id="view-yolo-wrap" class="single-media-frame" hidden>
+            <img src="/outputs/pipeline_v2/yolov8_detection_comparison_f54.png" alt="Lưới so sánh phát hiện đối tượng YOLOv8n trên 4 mức S01 frame 54" />
+          </div>
+
+          <div id="view-spatial-wrap" class="single-media-frame" hidden>
+            <img src="/outputs/pipeline_v2/spatial_uncertainty_grid.png" alt="Bản đồ bất định không gian pred_pix chồng lên khung hình và bounding box YOLOv8" />
+          </div>
+        </div>
+
+        <!-- Right: ADAS Telemetry HUD -->
+        <aside class="hud-panel" aria-label="Bảng điều khiển sức khỏe cảm biến">
+          <div class="hud-box">
+            <div class="hud-box-header">
+              <h3 class="hud-box-title">Guard Telemetry (Frame 54)</h3>
+              <span id="hud-state-badge" class="badge badge-critical">CRITICAL</span>
+            </div>
+            <div class="gauge-row">
+              <div id="gauge-hybrid" class="gauge-wrap"></div>
+              <div id="gauge-neural" class="gauge-wrap"></div>
+            </div>
+          </div>
+
+          <div id="hud-discordance-banner" class="alert-banner is-danger" role="status" aria-live="polite">
+            Đang tính kiểm tra bất đồng...
+          </div>
+
+          <div class="hud-box">
+            <div class="hud-box-header">
+              <h3 class="hud-box-title">Dynamic Sensor Fusion Weighting</h3>
+              <span class="badge badge-info">Smooth Hermite</span>
+            </div>
+            <div class="fusion-bars">
+              <div>
+                <div class="fusion-row-head">
+                  <span>Camera RGB Weight</span>
+                  <span id="fusion-cam-pct" class="mono">0.0%</span>
+                </div>
+                <div class="fusion-track"><div id="fusion-cam-bar" class="fusion-fill-cam" style="width:2%"></div></div>
+              </div>
+              <div>
+                <div class="fusion-row-head">
+                  <span>LiDAR / Radar Redundancy Share</span>
+                  <span id="fusion-lidar-pct" class="mono">100.0%</span>
+                </div>
+                <div class="fusion-track"><div id="fusion-lidar-bar" class="fusion-fill-lidar" style="width:98%"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="telemetry-kv">
+            <div class="kv-item">
+              <span class="kv-label">Laplacian Variance (B)</span>
+              <span id="kv-b" class="kv-val">-</span>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Saturation / Entropy</span>
+              <span id="kv-sh" class="kv-val">-</span>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">YOLOv8 Detections</span>
+              <span id="kv-yolo-cnt" class="kv-val">-</span>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">YOLOv8 mAP50 / Conf</span>
+              <span id="kv-yolo-map" class="kv-val">-</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Module 2: Health vs Downstream YOLOv8 & 8-Frame Timeline -->
+    <section id="downstream" class="card" aria-labelledby="downstream-heading">
+      <div class="section-head">
+        <div>
+          <h2 id="downstream-heading" class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+              <path d="M3 3v18h18" />
+              <path d="m7 14 4-4 3 3 5-6" />
+            </svg>
+            2. Multi-Metric Curves &amp; Downstream YOLOv8 Impact
+          </h2>
+          <p class="section-desc">
+            Biểu đồ phân tách bằng cả hình dạng điểm, kiểu nét liền/đứt và vùng tô bất thường tại <strong>s2</strong>.
+            Di chuột hoặc dùng phím Tab vào từng điểm dữ liệu để xem chi tiết.
+          </p>
+        </div>
+      </div>
+
+      <div class="charts-2col">
+        <div class="chart-card">
+          <h3 class="chart-title">Neural Failure vs Monotonic Hybrid Health (S01)</h3>
+          <div class="chart-legend">
+            <span class="legend-item"><span style="color:#EF4444">● --</span> Neural pred_health (f54)</span>
+            <span class="legend-item"><span style="color:#22C55E">▲ —</span> Hybrid Health (f54)</span>
+            <span class="legend-item"><span style="color:#38BDF8">■ ··</span> Hybrid Health (mean 8f)</span>
+          </div>
+          <div id="chart-health"></div>
+        </div>
+
+        <div class="chart-card">
+          <h3 class="chart-title">Downstream YOLOv8n Perception Degradation (8-Frame Mean)</h3>
+          <div class="chart-legend">
+            <span class="legend-item"><span style="color:#A78BFA">◆ —</span> mAP@0.50 Proxy</span>
+            <span class="legend-item"><span style="color:#38BDF8">● —</span> Object Retention</span>
+            <span class="legend-item"><span style="color:#F59E0B">▲ --</span> Mean Confidence</span>
+          </div>
+          <div id="chart-downstream"></div>
+        </div>
+      </div>
+
+      <div class="timeline-bar">
+        <div class="timeline-controls">
+          <div>
+            <h3 class="chart-title" style="margin:0">8-Frame Clip Timeline · <span id="timeline-clip-label" style="color:var(--color-info)">Blur s2</span></h3>
+            <p style="margin:2px 0 0;font-size:12px;color:var(--color-muted-foreground)">Chuyển mức lỗi ở Module 1 để đổi clip, chọn từng frame bên phải để tô sáng dòng dữ liệu.</p>
+          </div>
+          <div id="frame-pills" class="btn-group" role="group" aria-label="Chọn chỉ số frame"></div>
+        </div>
+
+        <div class="charts-2col">
+          <div class="chart-card">
+            <div id="chart-timeline"></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Frame</th>
+                  <th>B</th>
+                  <th>Neural</th>
+                  <th>Hybrid</th>
+                  <th>State</th>
+                  <th>Weight</th>
+                  <th>Det / GT</th>
+                  <th>mAP50</th>
+                </tr>
+              </thead>
+              <tbody id="timeline-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 3: Day/Night Adaptive & Interactive What-If Lab -->
+    <section id="whatif" class="card" aria-labelledby="whatif-heading">
+      <div class="section-head">
+        <div>
+          <h2 id="whatif-heading" class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+            </svg>
+            3. Day/Night Adaptive Calibration &amp; Interactive What-If Lab (24 Clips)
+          </h2>
+          <p class="section-desc">
+            Chạy trực tiếp công thức <code class="mono">guard-engine.js</code> (đồng bộ 1:1 với <code class="mono">camera_guard_rs</code>) trên toàn bộ 24 clip Ngày (S01) và Đêm (S06/S07/S08).
+            Thử tắt <strong>Day/Night Adaptive</strong> hoặc kéo trọng số để kiểm chứng tính đơn điệu và tránh báo động giả ban đêm.
+          </p>
+        </div>
+        <button id="btn-reset-whatif" type="button" class="btn btn-outline">Khôi phục tham số mặc định</button>
+      </div>
+
+      <div class="whatif-layout">
+        <div class="slider-panel">
+          <div class="toggle-row">
+            <div>
+              <strong style="font-size:13px">Day/Night Adaptive Baseline</strong>
+              <div style="font-size:11px;color:var(--color-muted-foreground)">Nội suy log-linear B_base(D)</div>
+            </div>
+            <button
+              id="toggle-adaptive"
+              type="button"
+              class="switch-btn"
+              role="switch"
+              aria-checked="true"
+              aria-label="Bật hoặc tắt thích ứng Ngày Đêm"
+            >
+              <span class="switch-thumb"></span>
+            </button>
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-field-head">
+              <label for="slider-wblur">Trọng số Optical / Neural (w1 / w2)</label>
+              <span id="val-wblur" class="mono">0.85 / 0.15</span>
+            </div>
+            <input id="slider-wblur" type="range" min="0.10" max="0.95" step="0.05" value="0.85" />
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-field-head">
+              <label for="slider-tau">Ngưỡng bất đồng τ (Discordance)</label>
+              <span id="val-tau" class="mono">0.05</span>
+            </div>
+            <input id="slider-tau" type="range" min="0.00" max="0.40" step="0.01" value="0.05" />
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-field-head">
+              <label for="slider-gamma">Hệ số phạt bất đồng γ</label>
+              <span id="val-gamma" class="mono">1.50</span>
+            </div>
+            <input id="slider-gamma" type="range" min="0.00" max="2.50" step="0.10" value="1.50" />
+          </div>
+
+          <div>
+            <div class="hud-box-title" style="margin-bottom:8px">Kiểm tra Đơn điệu 4 Chuỗi (s0 -&gt; s5)</div>
+            <div id="mono-checks" class="mono-checks"></div>
+          </div>
+
+          <div id="s06-live-status" class="hud-box" style="font-size:12px;display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:var(--space-xl)">
+          <div class="chart-card">
+            <h3 class="chart-title">Simulated Hybrid Health Curves (Day S01 &amp; Night S06 · s0-s5)</h3>
+            <div class="chart-legend">
+              <span class="legend-item"><span style="color:#22C55E">▲ —</span> S01 Day Blur</span>
+              <span class="legend-item"><span style="color:#38BDF8">● --</span> S01 Day Underexp</span>
+              <span class="legend-item"><span style="color:#F59E0B">◆ —</span> S06 Night Blur</span>
+              <span class="legend-item"><span style="color:#A78BFA">■ ··</span> S06 Night Underexp</span>
+            </div>
+            <div id="chart-whatif"></div>
+          </div>
+
+          <div class="table-wrap" style="max-height:330px;overflow-y:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Sample ID</th>
+                  <th>Time</th>
+                  <th>B</th>
+                  <th>B_base(D)</th>
+                  <th>Neural</th>
+                  <th>Δ Disc</th>
+                  <th>H_hybrid</th>
+                  <th>State</th>
+                  <th>Weight</th>
+                </tr>
+              </thead>
+              <tbody id="whatif-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 4: Spatial Uncertainty & Explainability -->
+    <section id="spatial" class="card" aria-labelledby="spatial-heading">
+      <div class="section-head">
+        <div>
+          <h2 id="spatial-heading" class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <circle cx="12" cy="12" r="4" />
+              <line x1="12" y1="3" x2="12" y2="5" />
+              <line x1="12" y1="19" x2="12" y2="21" />
+            </svg>
+            4. Spatial Uncertainty Map (pred_pix) &amp; Root-Cause Explainability
+          </h2>
+          <p class="section-desc">
+            Trích xuất bản đồ bất định mức pixel <code class="mono">pred_pix</code> từ <code class="mono">PixelHead</code> và đối chiếu với bounding box chuẩn YOLOv8.
+            Bảng cho thấy mạng nơ-ron phân loại nhầm <strong>100%</strong> các mức motion blur thành <strong>compression</strong> — nguyên nhân sâu xa làm mất cơ chế phạt độ nét ở nhánh hồi quy.
+          </p>
+        </div>
+      </div>
+
+      <div class="spatial-grid">
+        <div class="single-media-frame">
+          <img src="/outputs/pipeline_v2/spatial_uncertainty_grid.png" alt="Spatial uncertainty heatmap pred_pix trên S01 frame 54" />
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Sample</th>
+                <th>Top-1 Misclassification</th>
+                <th>pred_pix Mean</th>
+                <th>Inside BBox</th>
+                <th>Outside BBox</th>
+                <th>BBox / BG</th>
+              </tr>
+            </thead>
+            <tbody id="spatial-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Seahorse · Sensor Reality Sprint (LAB T1 — Camera Degradation Health Score)</span>
+    <span class="mono">Design System: ui-ux-pro-max-skill (Dark Glassmorphism · Density 8/10) · Pure HTML/CSS/JS</span>
+  </footer>
+
+  <div id="chart-tooltip" class="chart-tooltip" role="tooltip"></div>
+  <script type="module" src="/web/js/app.js"></script>
+</body>
+</html>
