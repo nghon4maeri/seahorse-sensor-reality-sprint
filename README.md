@@ -4,6 +4,25 @@ LAB **T1 — Camera degradation health score**, ADAS vehicle platform. The team 
 
 **Results:** A demo of **4 S01 clips**, comprising clean and motion blur s1/s2/s5, was run on CPU. At s2, the blur score dropped by **94.37%**, yet health increased both at frame 54 and across the 8-frame average. This represents a quality ranking failure case on the tested sample; downstream detector/mAP or ADAS safety was not measured.
 
+## Interactive Visualization UI (ADAS Telemetry Cockpit)
+
+A zero-build **HTML5 + CSS3 + Vanilla JS** telemetry dashboard (`web/`) built with the [ui-ux-pro-max design system](design-system/seahorse-adas-guard/MASTER.md) visualizes the failure case, downstream YOLOv8 impact, 24-clip Day/Night adaptive What-If simulator (exact JS port of [`camera_guard_rs`](crates/camera_guard_rs/README.md)), and `pred_pix` spatial uncertainty maps.
+
+![Seahorse ADAS Guard Interactive UI Overview](outputs/pipeline_v2/ui_dashboard_overview.png)
+
+<details>
+<summary>View full-page 4-module dashboard screenshot (Inspector · YOLOv8 &amp; Timeline · Day/Night What-If Lab · Spatial pred_pix)</summary>
+
+![Seahorse ADAS Guard Full Telemetry Dashboard](outputs/pipeline_v2/ui_dashboard_full.png)
+
+</details>
+
+Launch locally from the repository root:
+
+```powershell
+python scripts/serve_ui.py --open
+```
+
 ## Running the small demo on CPU
 
 Requires Git, Python, and Internet access. Tested environment: Python 3.13.15; library versions documented in [manifest](outputs/stage3_small/run_manifest.json) and [requirements-demo.txt](requirements-demo.txt). Run from the repository root:
